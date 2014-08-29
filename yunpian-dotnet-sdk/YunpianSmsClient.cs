@@ -4,11 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Binbin.HttpHelper;
+using log4net;
 
 namespace yunpian_dotnet_sdk
 {
-    public class YunpianSmsClient:YunpianClient
+    public class YunpianSmsClient : YunpianClient
     {
+        private static ILog log = LogManager.GetLogger(typeof(YunpianSmsClient));
         public SendResult tplSendSms(long tpl_id, string tpl_value, string mobile)
         {
             GetApiKey();
@@ -66,6 +69,51 @@ namespace yunpian_dotnet_sdk
                 .ToArray();
             var format = String.Join("&", strings);
             var s = tplSendSms(appApikey, tplId, format, notifyTelephone);
+        }
+        /*URL：http://yunpian.com/v1/sms/get_reply.json 
+访问方式：GET 或者 POST 
+参数： 
+参数名	是否必须	描述	示例
+apikey	是	用户唯一标识	9b11127a9701975c734b8aee81ee3526
+start_time	是	短信回复开始时间	2013-08-11 00:00:00
+end_time	是	短信回复结束时间	2013-08-12 00:00:00
+page_num	是	页码，从1开始	1
+page_size	是	每页个数，最大100个	20
+mobile	否	填写时只查该手机号的回复，不填时查所有的回复	15205201314
+return_fields	否	返回字段（暂未开放）	
+sort_fields	否	排序字段（暂未开放）	默认按提交时间降序
+
+调用成功的返回值示例：
+{
+    "code": 0,
+    "msg": "OK",
+    "sms_reply": [{
+        "mobile": "15253878027",         //回复短信的手机号
+        "text": "很好用,已收到,谢谢",       //短信的内容
+        "reply_time": "2013-07-23 16:14:15" //回复短信的时间
+    }, {
+        "mobile": "15222043793",
+        "text": "很快啊，已经收到了！ ^_^",
+        "reply_time": "2013-07-22 20:33:22"
+    }, ]
+}
+              */
+        public string get_reply(string apikey, DateTime start_time, DateTime end_time, int page_num = 1, int page_size = 20, string mobile = "")
+        {
+            var url = BASE_URI + "/" + VERSION + "/sms/get_reply.json";
+            var paras = new List<APIParameter>()
+            {
+                new APIParameter("apikey", apikey),
+                new APIParameter("start_time", start_time.ToString("yyyy-MM-dd HH:mm:ss")),
+                new APIParameter("end_time", end_time.ToString("yyyy-MM-dd HH:mm:ss")),
+                new APIParameter("page_num", page_num.ToString()),
+                new APIParameter("page_size", page_size.ToString()),
+            };
+            if (!string.IsNullOrEmpty(mobile))
+                paras.Add(new APIParameter("mobile", mobile));
+            var get = new SyncHttpRequest().HttpGet(url, paras);
+            log.Info("get_reply:" + get);
+            return get;
         }
     }
 }

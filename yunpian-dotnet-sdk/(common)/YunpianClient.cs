@@ -10,11 +10,11 @@ namespace yunpian_dotnet_sdk
         /**
         * 服务http地址
         */
-        private static string BASE_URI = "http://yunpian.com";
+        protected static string BASE_URI = "http://yunpian.com";
         /**
         * 服务版本号
         */
-        private static string VERSION = "v1";
+        protected static string VERSION = "v1";
         /**
         * 查账户信息的http地址
         */
