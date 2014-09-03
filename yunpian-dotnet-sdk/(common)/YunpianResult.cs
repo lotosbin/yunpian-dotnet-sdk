@@ -1,8 +1,14 @@
-﻿namespace yunpian_dotnet_sdk
+﻿using System.Runtime.Serialization;
+
+namespace yunpian_dotnet_sdk
 {
+    [DataContract]
     public class YunpianResult
     {
-        public string code { get; set; }
-        public string msg { get; set; }
+        [DataMember]
+        public string Code { get; set; }
+        [DataMember]
+        public string Msg { get; set; }
+       
     }
 }

@@ -1,10 +1,57 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Runtime.Serialization;
+using Binbin.HttpHelper;
+using Newtonsoft.Json;
 
 namespace yunpian_dotnet_sdk
 {
+
     public class YunpianUserClient : YunpianClient
     {
+        [DataContract]
+        public class GetResult:YunpianResult
+        {
+            [DataMember]
+            public User user { get; set; }//可省
+
+            [DataContract]
+            public class User
+            {
+                [DataMember]
+                public string nick { get; set; }
+                [DataMember]
+                public DateTime gmt_created { get; set; }
+                [DataMember]
+                public string mobile { get; set; }
+                [DataMember]
+                public string email { get; set; }
+                [DataMember]
+                public string ip_whitelist { get; set; }
+                [DataMember]
+                public string api_version { get; set; }
+                [DataMember]
+                public string balance { get; set; }
+                [DataMember]
+                public int alarm_balance { get; set; }
+                [DataMember]
+                public string emergency_contact { get; set; }
+                [DataMember]
+                public string emergency_mobile { get; set; }
+
+            }
+        }
+
+        [DataContract]
+        public class GetResult2 : YunpianResult
+        {
+            [DataMember]
+            public string detail { get; set; }
+        }
+
+
         /*查账户信息
 URL：http://yunpian.com/v1/user/get.json 
 访问方式：GET 或者 POST 
@@ -30,10 +77,34 @@ apikey	是	用户唯一标识	9b11127a9701975c734b8aee81ee3526
     }
 }                   */
 
-        public void Get(string apikey)
+        public String Get(string apikey)
         {
+           /* var request = new SyncHttpRequest();
+            var get = request.HttpGet("http://yunpian.com/v1/user/get.json", new List<APIParameter>()
+            {
+                new APIParameter("apikey", apikey)
+            }
+                );
+            return get;*/
+            WebRequest req = WebRequest.Create(URI_GET_USER_INFO + "?apikey=" + apikey);
+            using (WebResponse resp = req.GetResponse())
+            {
+                using (var sr = new StreamReader(resp.GetResponseStream()))
+                {
+                    return sr.ReadToEnd().Trim();
+                }
+            }
+
 
         }
+
+        public GetResult Get2(string apikey)
+        {
+            string s = Get(apikey);
+            var result = JsonConvert.DeserializeObject<GetResult>(s);//函数 泛型
+            return result;
+        }
+
         /*修改账户信息
 URL：http://yunpian.com/v1/user/set.json 
 访问方式：POST 
@@ -53,9 +124,32 @@ alarm_balance	否	短信余额提醒阈值。
     "detail":null
 }                   */
 
-        public void Set(string apikey, string emergency_contact = "", string emergency_mobile = "", int alarm_balance = 100)
+        public string Set(string apikey, string emergency_contact = "", string emergency_mobile = "",
+            int alarm_balance = 0)
         {
+            var request = new SyncHttpRequest();
+            var paras = new List<APIParameter>();
+            paras.Add(new APIParameter("apikey", apikey));
+            if (!string.IsNullOrEmpty(emergency_contact))
+            {
+                paras.Add(new APIParameter("emergency_contact", emergency_contact));
+            }
+            if (!string.IsNullOrEmpty(emergency_mobile))
+            {
+                paras.Add(new APIParameter("emergency_mobile", emergency_mobile));
+            }
+            paras.Add(new APIParameter("alarm_balance", alarm_balance.ToString()));
+            var get = request.HttpPost("http://yunpian.com/v1/user/get.json", paras
+                );
+            return get;
+        }
 
+        public GetResult2 Set2(string apikey, string emergency_contact = "", string emergency_mobile = "", int alarm_balance =0)
+        {
+            string s = Set(apikey,emergency_contact,emergency_mobile,alarm_balance);
+
+            var result = JsonConvert.DeserializeObject<GetResult2>(s);
+            return result;
         }
 
         public static string GetReturnText(string apikey)

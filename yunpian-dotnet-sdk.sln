@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{25B3E9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yunpian-dotnet-sdk-test", "yunpian-dotnet-sdk-test\yunpian-dotnet-sdk-test.csproj", "{65F58F89-5B02-4AF1-82F4-B621347EA035}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.csproj", "{70DD7EE2-7E73-4ADD-9717-79F91D284542}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{65F58F89-5B02-4AF1-82F4-B621347EA035}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65F58F89-5B02-4AF1-82F4-B621347EA035}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65F58F89-5B02-4AF1-82F4-B621347EA035}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70DD7EE2-7E73-4ADD-9717-79F91D284542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70DD7EE2-7E73-4ADD-9717-79F91D284542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70DD7EE2-7E73-4ADD-9717-79F91D284542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70DD7EE2-7E73-4ADD-9717-79F91D284542}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

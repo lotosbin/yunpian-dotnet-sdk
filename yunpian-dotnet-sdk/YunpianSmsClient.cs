@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Text;
 using Binbin.HttpHelper;
 using log4net;
+using Newtonsoft.Json;
 
 namespace yunpian_dotnet_sdk
 {
     public class YunpianSmsClient : YunpianClient
     {
         private static ILog log = LogManager.GetLogger(typeof(YunpianSmsClient));
-        public SendResult tplSendSms(long tpl_id, string tpl_value, string mobile)
+       /* public SendResult tplSendSms(long tpl_id, string tpl_value, string mobile)
         {
             GetApiKey();
             var s = tplSendSms(null, tpl_id, tpl_value, mobile);
@@ -28,10 +30,27 @@ namespace yunpian_dotnet_sdk
                 Success = false,
                 Message = s,
             };
+        }*/
+        [DataContract]
+        public class Result
+        {
+            [DataMember]
+            public int count { get; set; }
+            [DataMember]
+            public int fee { get; set; }
+            [DataMember]
+            public int sid { get; set; }
+        }
+        [DataContract]
+        public class sendresult:YunpianResult
+        {
+            [DataMember]
+            public Result result { get; set; }
         }
 
-        public static string sendSms(string apikey, string text, string mobile)
+        public static sendresult sendSms(string apikey,string mobile,string text)
         {
+            /*
             string parameter = "apikey=" + apikey + "&text=" + text + "&mobile=" + mobile;
             WebRequest req = WebRequest.Create(URI_SEND_SMS);
             req.ContentType = "application/x-www-form-urlencoded";
@@ -43,25 +62,174 @@ namespace yunpian_dotnet_sdk
             os.Close();
             WebResponse resp = req.GetResponse();
             var sr = new StreamReader(resp.GetResponseStream());
-            return sr.ReadToEnd().Trim();
+            return sr.ReadToEnd().Trim();*/
+
+           /* var request = new SyncHttpRequest();
+            var paras = new List<APIParameter>();
+
+            paras.Add(new APIParameter("apikey", apikey));
+            if (!string.IsNullOrEmpty(text))
+            {
+                paras.Add(new APIParameter("text", text));
+            }
+            if (!string.IsNullOrEmpty(mobile))
+            {
+                paras.Add(new APIParameter("mobile", mobile));
+            }
+
+            var get = request.HttpPost("http://yunpian.com/v1/sms/send.json", paras
+                );
+            var result = JsonConvert.DeserializeObject<sendresult>(get);//函数 泛型
+            return result;
+            * */
+            var dic = new Dictionary<string, string>
+            {
+                {"apikey", apikey},                             
+                {"mobile", mobile},
+                {"text", text}
+            };
+            return Helper.HttpPost<sendresult>(URI_SEND_SMS, dic);
+
         }
 
-        public static string tplSendSms(string apikey, long tpl_id, string tpl_value, string mobile)
+        public static sendresult tplSendSms(string apikey, long tpl_id, string tpl_value, string mobile)
         {
             string encodedTplValue = Uri.EscapeDataString(tpl_value);
-            string parameter = "apikey=" + apikey + "&tpl_id=" + tpl_id + "&tpl_value=" + encodedTplValue + "&mobile=" + mobile;
-            WebRequest req = WebRequest.Create(URI_TPL_SEND_SMS);
-            req.ContentType = "application/x-www-form-urlencoded";
-            req.Method = "POST";
-            byte[] bytes = Encoding.UTF8.GetBytes(parameter); //这里编码设置为utf8
-            req.ContentLength = bytes.Length;
-            Stream os = req.GetRequestStream();
-            os.Write(bytes, 0, bytes.Length);
-            os.Close();
-            WebResponse resp = req.GetResponse();
-            var sr = new StreamReader(resp.GetResponseStream());
-            return sr.ReadToEnd().Trim();
+            var dic = new Dictionary<string, string>
+            {
+                {"apikey", apikey},
+                {"tpl_id", tpl_id.ToString()},
+                {"tpl_value", tpl_value},
+                {"mobile", mobile}
+            };
+            return Helper.HttpPost<sendresult>(URI_TPL_SEND_SMS, dic);
         }
+
+        //获取状态报告
+        [DataContract]
+        public class SmsStatu
+        {
+            [DataMember]
+            public int sid { get; set; }
+            [DataMember]
+            public object uid { get; set; }
+            [DataMember]
+            public string user_receive_time { get; set; }
+            [DataMember]
+            public string error_msg { get; set; }
+            [DataMember]
+            public string mobile { get; set; }
+            [DataMember]
+            public string report_status { get; set; }
+        }
+        [DataContract]
+        public class pullstatusresult:YunpianResult
+        {
+            [DataMember]
+            public List<SmsStatu> sms_status { get; set; }
+        }
+
+        public static pullstatusresult tplpullstatus(string apikey)
+        {
+           // string encodedTplValue = Uri.EscapeDataString(tpl_value);
+            var dic = new Dictionary<string, string>
+            {
+                {"apikey", apikey}       
+            };
+            return Helper.HttpPost<pullstatusresult>("http://yunpian.com/v1/sms/pull_status.json", dic);
+        }
+
+        //获取回复短信
+        [DataContract]
+        public class SmsReply
+        {
+            [DataMember]
+            public string mobile { get; set; }
+            [DataMember]
+            public string reply_time { get; set; }
+            [DataMember]
+            public string text { get; set; }
+            [DataMember]
+            public string extend { get; set; }
+            [DataMember]
+            public string base_extend { get; set; }
+        }
+        [DataContract]
+        public class pullreplyresult:YunpianResult
+        {
+            [DataMember]
+            public List<SmsReply> sms_reply { get; set; }
+        }
+        public static pullreplyresult tplpullreply(string apikey)
+        {            
+            var dic = new Dictionary<string, string>
+            {
+                {"apikey", apikey}       
+            };
+            return Helper.HttpPost<pullreplyresult>("http://yunpian.com/v1/sms/pull_reply.json", dic);
+        }
+
+        //推送状态报告
+        //推送回复短信
+
+        //查屏蔽词
+        [DataContract]
+        public class Result1
+        {
+            [DataMember]
+            public string black_word { get; set; }
+        }
+        [DataContract]
+        public class getblackword:YunpianResult
+        {
+            [DataMember]
+            public Result1 result { get; set; }
+        }
+        public static getblackword tplgetblackword(string apikey,string text)
+        {
+            var dic = new Dictionary<string, string>
+            {
+                {"apikey", apikey} ,
+                {"text",text}
+            };
+            return Helper.HttpPost<getblackword>("http://yunpian.com/v1/sms/get_black_word.json", dic);
+        }
+        //查回复的短信
+        [DataContract]
+        public class SmsReply1
+        {
+            [DataMember]
+            public string mobile { get; set; }
+            [DataMember]
+            public string text { get; set; }
+            [DataMember]
+            public string reply_time { get; set; }
+        }
+        [DataContract]
+        public class getreplyresult:YunpianResult
+        {
+           [DataMember]
+            public List<SmsReply1> sms_reply { get; set; }
+        }
+        public static getreplyresult tplgetreply(string apikey, string start_time, string end_time, int page_num, int page_size, string mobile = null)
+        {
+            var dic = new Dictionary<string, string>
+            {
+                {"apikey", apikey} ,
+                {"start_time",start_time.ToString()},
+                {"end_time",end_time.ToString()},
+                {"page_num",page_num.ToString()},
+                {"page_size",page_size.ToString()}
+            };         
+            if (!string.IsNullOrEmpty(mobile))
+                dic.Add("mobile", mobile);
+            return Helper.HttpPost<getreplyresult>("http://yunpian.com/v1/sms/get_reply.json", dic);
+        }
+
+
+
+
+
 
         public static void tplSendSms(string appApikey, string notifyTelephone, int tplId, Dictionary<string, string> dictionary)
         {

@@ -51,8 +51,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="YunpianSmsClientTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="YunpianUserClientTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\yunpian-dotnet-sdk\yunpian-dotnet-sdk.csproj">
