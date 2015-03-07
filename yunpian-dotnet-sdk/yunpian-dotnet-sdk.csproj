@@ -58,11 +58,13 @@
     <Compile Include="%28common%29\YunpianClient.cs" />
     <Compile Include="%28common%29\YunpianResult.cs" />
     <Compile Include="%28common%29\SendResult.cs" />
+    <Compile Include="YunpianErrorHelper.cs" />
     <Compile Include="YunpianSmsClient.cs" />
     <Compile Include="YunpianTplClient.cs" />
     <Compile Include="YunpianUserClient.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="README.md" />
     <None Include="yunpian-dotnet-sdk.nuspec" />

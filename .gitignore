@@ -175,3 +175,4 @@ FakesAssemblies/
 /yunpian-dotnet-sdk-test/App.config
 /ConsoleApplication1/App.config
 *.nupkg
+yunpian-dotnet-sdk/App.config
